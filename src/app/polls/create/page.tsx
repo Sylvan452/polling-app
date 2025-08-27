@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ProtectedRoute from '@/app/components/auth/ProtectedRoute';
 
-export default function CreatePollPage() {
+function CreatePollPage() {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [options, setOptions] = useState(['', '']);
@@ -119,5 +120,13 @@ export default function CreatePollPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function CreatePollPageWrapper() {
+  return (
+    <ProtectedRoute>
+      <CreatePollPage />
+    </ProtectedRoute>
   );
 }

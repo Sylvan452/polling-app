@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useAuth } from '@/app/contexts/AuthContext';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  // This would come from your auth context in a real app
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user, signOut, loading } = useAuth();
 
   return (
     <nav className="bg-white shadow-sm">
@@ -34,9 +34,9 @@ export default function Navbar() {
             </div>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            {isLoggedIn ? (
+            {user ? (
               <button
-                onClick={() => setIsLoggedIn(false)}
+                onClick={() => signOut()}
                 className="border border-gray-300 rounded-md px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
                 Sign Out
@@ -118,11 +118,11 @@ export default function Navbar() {
           </Link>
         </div>
         <div className="pt-4 pb-3 border-t border-gray-200">
-          {isLoggedIn ? (
-            <div className="flex items-center px-4">
+          {user ? (
+            <div className="px-4 pt-4 pb-3">
               <button
                 onClick={() => {
-                  setIsLoggedIn(false);
+                  signOut();
                   setIsMenuOpen(false);
                 }}
                 className="block text-base font-medium text-gray-500 hover:text-gray-800"

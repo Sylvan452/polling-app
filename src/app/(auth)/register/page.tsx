@@ -2,17 +2,46 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/app/contexts/AuthContext';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { signUp } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement registration logic
-    console.log('Registration attempt with:', { name, email, password });
+    setError('');
+    
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    
+    // Validate password strength
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      const user = await signUp(name, email, password);
+      if (!user) {
+        setError('Registration failed. Email may already be in use.');
+      }
+    } catch (err) {
+      setError('An error occurred during registration');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -97,12 +126,18 @@ export default function RegisterPage() {
             </div>
           </div>
 
+          {error && (
+            <div className="text-red-500 text-sm text-center">
+              {error}
+            </div>
+          )}
           <div>
             <button
               type="submit"
-              className="group relative flex w-full justify-center rounded-md bg-blue-600 py-2 px-3 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              disabled={loading}
+              className="group relative flex w-full justify-center rounded-md bg-blue-600 py-2 px-3 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:bg-blue-400 disabled:cursor-not-allowed"
             >
-              Register
+              {loading ? 'Registering...' : 'Register'}
             </button>
           </div>
         </form>

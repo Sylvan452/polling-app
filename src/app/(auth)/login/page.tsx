@@ -2,15 +2,31 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/app/contexts/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement authentication logic
-    console.log('Login attempt with:', { email, password });
+    setError('');
+    setLoading(true);
+    
+    try {
+      const user = await signIn(email, password);
+      if (!user) {
+        setError('Invalid email or password');
+      }
+    } catch (err) {
+      setError('An error occurred during sign in');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,12 +79,18 @@ export default function LoginPage() {
             </div>
           </div>
 
+          {error && (
+            <div className="text-red-500 text-sm text-center">
+              {error}
+            </div>
+          )}
           <div>
             <button
               type="submit"
-              className="group relative flex w-full justify-center rounded-md bg-blue-600 py-2 px-3 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              disabled={loading}
+              className="group relative flex w-full justify-center rounded-md bg-blue-600 py-2 px-3 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:bg-blue-400 disabled:cursor-not-allowed"
             >
-              Sign in
+              {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
         </form>
