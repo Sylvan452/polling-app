@@ -1,119 +1,134 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { notFound } from 'next/navigation';
+import { Poll, getPollById } from '../../lib/mockData';
+import VoteForm from '../../components/VoteForm';
 
-// Mock data for a single poll
-const mockPoll = {
-  id: 1,
-  title: 'Favorite Programming Language',
-  options: [
-    { id: 1, text: 'JavaScript', votes: 45 },
-    { id: 2, text: 'Python', votes: 35 },
-    { id: 3, text: 'Java', votes: 20 },
-    { id: 4, text: 'C#', votes: 15 },
-    { id: 5, text: 'Go', votes: 5 },
-  ],
-  totalVotes: 120,
-  createdAt: '2023-08-15',
-};
+interface PollPageProps {
+  params: Promise<{ id: string }>;
+}
 
-export default function PollPage({ params }: { params: { id: string } }) {
-  const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [hasVoted, setHasVoted] = useState(false);
-  const [poll, setPoll] = useState(mockPoll);
+export default function PollPage({ params }: PollPageProps) {
+  const [poll, setPoll] = useState<Poll | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // In a real app, you would fetch the poll data based on params.id
-  // useEffect(() => {
-  //   const fetchPoll = async () => {
-  //     const response = await fetch(`/api/polls/${params.id}`);
-  //     const data = await response.json();
-  //     setPoll(data);
-  //   };
-  //   fetchPoll();
-  // }, [params.id]);
-
-  const handleVote = async () => {
-    if (selectedOption === null) return;
-
-    // In a real app, you would send the vote to the API
-    // await fetch(`/api/polls/${params.id}/vote`, {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ optionId: selectedOption }),
-    // });
-
-    // For now, just update the UI
-    const updatedOptions = poll.options.map(option => {
-      if (option.id === selectedOption) {
-        return { ...option, votes: option.votes + 1 };
+  useEffect(() => {
+    async function loadPoll() {
+      try {
+        const resolvedParams = await params;
+        const pollData = getPollById(resolvedParams.id);
+        
+        if (!pollData) {
+          notFound();
+          return;
+        }
+        
+        setPoll(pollData);
+      } catch (err) {
+        setError('Failed to load poll');
+      } finally {
+        setLoading(false);
       }
-      return option;
-    });
+    }
 
-    setPoll({
+    loadPoll();
+  }, [params]);
+
+  const handleVote = (optionId: string) => {
+    if (!poll) return;
+    
+    // Update the poll data with the new vote
+    const updatedPoll = {
       ...poll,
-      options: updatedOptions,
-      totalVotes: poll.totalVotes + 1,
-    });
-
-    setHasVoted(true);
+      options: poll.options.map(option => 
+        option.id === optionId 
+          ? { ...option, votes: option.votes + 1 }
+          : option
+      ),
+      totalVotes: poll.totalVotes + 1
+    };
+    
+    setPoll(updatedPoll);
   };
 
-  const calculatePercentage = (votes: number) => {
-    return Math.round((votes / poll.totalVotes) * 100) || 0;
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded mb-6 w-3/4"></div>
+              <div className="space-y-3">
+                <div className="h-12 bg-gray-200 rounded"></div>
+                <div className="h-12 bg-gray-200 rounded"></div>
+                <div className="h-12 bg-gray-200 rounded"></div>
+              </div>
+              <div className="h-12 bg-gray-200 rounded mt-6"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-2xl mx-auto">
+            <div className="flex items-center">
+              <svg className="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h3 className="text-lg font-medium text-red-800">Error</h3>
+                <p className="text-red-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!poll) {
+    return notFound();
+  }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-6">{poll.title}</h1>
-      <p className="text-gray-500 mb-8">Created on {poll.createdAt} • {poll.totalVotes} votes</p>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{poll.question}</h1>
+          <p className="text-gray-600">
+            Created on {poll.createdAt.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </p>
+        </div>
 
-      <div className="space-y-4">
-        {poll.options.map((option) => (
-          <div key={option.id} className="border rounded-lg p-4">
-            <div className="flex items-center mb-2">
-              {!hasVoted ? (
-                <input
-                  type="radio"
-                  id={`option-${option.id}`}
-                  name="poll-option"
-                  className="mr-3"
-                  checked={selectedOption === option.id}
-                  onChange={() => setSelectedOption(option.id)}
-                />
-              ) : null}
-              <label 
-                htmlFor={`option-${option.id}`}
-                className={`flex-grow ${hasVoted ? 'font-medium' : ''}`}
-              >
-                {option.text}
-              </label>
-              {hasVoted && (
-                <span className="text-gray-500">{calculatePercentage(option.votes)}%</span>
-              )}
-            </div>
-            
-            {hasVoted && (
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div 
-                  className="bg-blue-600 h-2.5 rounded-full" 
-                  style={{ width: `${calculatePercentage(option.votes)}%` }}
-                ></div>
-              </div>
-            )}
-          </div>
-        ))}
+        {/* Vote Form */}
+        <VoteForm poll={poll} onVote={handleVote} />
+
+        {/* Back Link */}
+        <div className="text-center mt-8">
+          <a 
+            href="/polls" 
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to all polls
+          </a>
+        </div>
       </div>
-
-      {!hasVoted && (
-        <button
-          onClick={handleVote}
-          disabled={selectedOption === null}
-          className={`mt-6 px-4 py-2 rounded-md ${selectedOption === null ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
-        >
-          Submit Vote
-        </button>
-      )}
     </div>
   );
 }

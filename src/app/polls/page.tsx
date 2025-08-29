@@ -1,37 +1,122 @@
-import Link from 'next/link';
+'use client';
 
-// Mock data for polls
-const mockPolls = [
-  { id: 1, title: 'Favorite Programming Language', votes: 120, createdAt: '2023-08-15' },
-  { id: 2, title: 'Best Frontend Framework', votes: 85, createdAt: '2023-08-20' },
-  { id: 3, title: 'Most Used Database', votes: 64, createdAt: '2023-08-25' },
-];
+import Link from 'next/link';
+import { getAllPolls } from '../lib/mockData';
 
 export default function PollsPage() {
+  const polls = getAllPolls();
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">All Polls</h1>
-        <Link 
-          href="/polls/create" 
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Create New Poll
-        </Link>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockPolls.map((poll) => (
-          <Link key={poll.id} href={`/polls/${poll.id}`}>
-            <div className="border rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer">
-              <h2 className="text-xl font-semibold mb-2">{poll.title}</h2>
-              <div className="flex justify-between text-sm text-gray-500">
-                <span>{poll.votes} votes</span>
-                <span>Created: {poll.createdAt}</span>
-              </div>
-            </div>
-          </Link>
-        ))}
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Active Polls</h1>
+          <p className="text-xl text-gray-600">
+            Choose a poll below to cast your vote and see the results
+          </p>
+        </div>
+
+        {/* Polls Grid */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1 max-w-3xl mx-auto">
+          {polls.map((poll) => {
+            const mostPopularOption = poll.options.reduce((prev, current) => 
+              prev.votes > current.votes ? prev : current
+            );
+            const leadingPercentage = poll.totalVotes > 0 
+              ? Math.round((mostPopularOption.votes / poll.totalVotes) * 100) 
+              : 0;
+
+            return (
+              <Link
+                key={poll.id}
+                href={`/polls/${poll.id}`}
+                className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-6 border border-gray-200 hover:border-blue-300"
+              >
+                <div className="flex flex-col h-full">
+                  {/* Poll Question */}
+                  <h2 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2">
+                    {poll.question}
+                  </h2>
+                  
+                  {/* Poll Stats */}
+                  <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+                    <span className="flex items-center">
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      {poll.createdAt.toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </span>
+                    <span className="flex items-center">
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      {poll.totalVotes} votes
+                    </span>
+                  </div>
+                  
+                  {/* Leading Option Preview */}
+                  <div className="flex-grow">
+                    <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-700">
+                          Leading: {mostPopularOption.text}
+                        </span>
+                        <span className="text-sm text-gray-600">
+                          {leadingPercentage}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${leadingPercentage}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Options Count */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-500">
+                      {poll.options.length} options available
+                    </span>
+                    <div className="flex items-center text-blue-600 font-medium">
+                      <span className="text-sm mr-1">Vote now</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Empty State */}
+        {polls.length === 0 && (
+          <div className="text-center py-12">
+            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No polls available</h3>
+            <p className="text-gray-600">Check back later for new polls to participate in.</p>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="text-center mt-12">
+          <p className="text-gray-500">
+            Want to create your own poll? 
+            <a href="#" className="text-blue-600 hover:text-blue-800 font-medium ml-1">
+              Get started here
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   );
