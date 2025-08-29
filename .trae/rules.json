@@ -1,0 +1,25 @@
+{
+  "project": "Polling App",
+  "rules": [
+    {
+      "description": "Follow the Next.js App Router structure",
+      "details": "Place route pages under /app. Poll-related pages live under /app/polls/. API routes live under /app/api/."
+    },
+    {
+      "description": "Use react-hook-form with shadcn/ui for all forms",
+      "details": "When creating or refactoring forms (e.g. new poll form, login form), always use react-hook-form for validation and state management, and shadcn/ui components (Input, Button, Form) for UI consistency."
+    },
+    {
+      "description": "Supabase integration",
+      "details": "Use Supabase client for authentication (sign up, sign in, session handling) and database queries. Always import from '@/lib/supabaseClient'. Keep server-side calls inside /app/api/."
+    },
+    {
+      "description": "Component structure",
+      "details": "Use server components for data fetching, and client components only where interactivity is required (forms, buttons, voting interactions)."
+    },
+    {
+      "description": "Scaffolding expectations",
+      "details": "When asked to scaffold a feature (e.g. 'create a form to submit a new poll'), the assistant should create files in the right folder (/app/polls/new/page.tsx), use react-hook-form + shadcn/ui, and call Supabase insert query inside an API route (/app/api/polls/route.ts)."
+    }
+  ]
+}
