@@ -36,6 +36,19 @@ export const mockPolls: Poll[] = [
     ],
     createdAt: new Date("2024-01-20"),
     totalVotes: 120
+  },
+  {
+    id: "3",
+    question: "What's your favourite database tool?",
+    options: [
+      { id: "3a", text: "PostgreSQL", votes: 42 },
+      { id: "3b", text: "MongoDB", votes: 35 },
+      { id: "3c", text: "MySQL", votes: 28 },
+      { id: "3d", text: "Redis", votes: 22 },
+      { id: "3e", text: "SQLite", votes: 18 }
+    ],
+    createdAt: new Date("2024-01-25"),
+    totalVotes: 145
   }
 ];
 
