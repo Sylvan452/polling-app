@@ -59,3 +59,18 @@ export function getPollById(id: string): Poll | null {
 export function getAllPolls(): Poll[] {
   return mockPolls;
 }
+
+/**
+ * Pure and immutable function to tally a vote for a specific option
+ * Returns a new array of options with the vote count updated
+ * @param options - Array of poll options
+ * @param optionId - ID of the option to vote for
+ * @returns New array with updated vote count, or original array if option not found
+ */
+export function tallyVote(options: PollOption[], optionId: string): PollOption[] {
+  return options.map(option => 
+    option.id === optionId 
+      ? { ...option, votes: option.votes + 1 }
+      : option
+  );
+}

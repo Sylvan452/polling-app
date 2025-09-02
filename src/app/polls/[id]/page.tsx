@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { Poll, getPollById } from '../../lib/mockData';
 import VoteForm from '../../components/VoteForm';
 
@@ -118,7 +119,7 @@ export default function PollPage({ params }: PollPageProps) {
 
         {/* Back Link */}
         <div className="text-center mt-8">
-          <a 
+          <Link 
             href="/polls" 
             className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
           >
@@ -126,7 +127,7 @@ export default function PollPage({ params }: PollPageProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Back to all polls
-          </a>
+          </Link>
         </div>
       </div>
     </div>
