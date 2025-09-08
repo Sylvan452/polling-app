@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ProtectedRoute from '@/app/components/auth/ProtectedRoute';
+import { Poll } from '@/types/poll';
+
 
 function CreatePollPage() {
   const router = useRouter();
