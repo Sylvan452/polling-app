@@ -5,62 +5,81 @@ import Link from 'next/link';
 import { useAuth } from '@/app/contexts/AuthContext';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
+
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [status, setStatus] = useState<{
+    loading: boolean;
+    error: string | null;
+  }>({ loading: false, error: null });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
-    
+    setStatus({ loading: true, error: null });
+
     try {
-      const user = await signIn(email, password);
+      const user = await signIn(formData.email, formData.password);
+
       if (!user) {
-        setError('Invalid email or password');
+        setStatus({ loading: false, error: 'Invalid email or password' });
+      } else {
+        // Optional: redirect user after login
+        // router.push('/dashboard');
       }
     } catch (err) {
-      setError('An error occurred during sign in');
-      console.error(err);
+      console.error('Sign-in error:', err);
+      setStatus({
+        loading: false,
+        error: 'Unable to sign in. Please try again.',
+      });
     } finally {
-      setLoading(false);
+      setStatus((prev) => ({ ...prev, loading: false }));
     }
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight">
+    <main className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <section className="w-full max-w-md space-y-8">
+        <header>
+          <h1 className="mt-6 text-center text-3xl font-bold tracking-tight">
             Sign in to your account
-          </h2>
+          </h1>
           <p className="mt-2 text-center text-sm">
             Or{' '}
-            <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
+            <Link
+              href="/register"
+              className="font-medium text-blue-600 hover:text-blue-500"
+            >
               create a new account
             </Link>
           </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        </header>
+
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit} noValidate>
           <div className="-space-y-px rounded-md shadow-sm">
             <div>
-              <label htmlFor="email-address" className="sr-only">
+              <label htmlFor="email" className="sr-only">
                 Email address
               </label>
               <input
-                id="email-address"
+                id="email"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
-                className="relative block w-full rounded-t-md border-0 py-1.5 px-3 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                value={formData.email}
+                onChange={handleChange}
+                className="relative block w-full rounded-t-md border-0 py-2 px-3 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm"
                 placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                aria-invalid={!!status.error}
               />
             </div>
+
             <div>
               <label htmlFor="password" className="sr-only">
                 Password
@@ -71,30 +90,31 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="relative block w-full rounded-b-md border-0 py-1.5 px-3 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                value={formData.password}
+                onChange={handleChange}
+                className="relative block w-full rounded-b-md border-0 py-2 px-3 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm"
                 placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
           </div>
 
-          {error && (
-            <div className="text-red-500 text-sm text-center">
-              {error}
-            </div>
+          {status.error && (
+            <p className="text-red-500 text-sm text-center" role="alert">
+              {status.error}
+            </p>
           )}
+
           <div>
             <button
               type="submit"
-              disabled={loading}
-              className="group relative flex w-full justify-center rounded-md bg-blue-600 py-2 px-3 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:bg-blue-400 disabled:cursor-not-allowed"
+              disabled={status.loading}
+              className="group relative flex w-full justify-center rounded-md bg-blue-600 py-2 px-3 text-sm font-semibold text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 disabled:bg-blue-400 disabled:cursor-not-allowed"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {status.loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
