@@ -1,4 +1,4 @@
-function BackIcon() {
+export function BackIcon() {
   return (
     <svg
       className="w-4 h-4 mr-2"
