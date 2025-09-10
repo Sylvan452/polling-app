@@ -1,16 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Poll, getPollById } from '../../lib/mockData';
 import VoteForm from '../../components/VoteForm';
+import { BackIcon } from '../../components/ui/Icons';
 
 interface PollPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default function PollPage({ params }: PollPageProps) {
+  const { id } = use(params);
   const [poll, setPoll] = useState<Poll | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +22,7 @@ export default function PollPage({ params }: PollPageProps) {
 
     const loadPoll = async () => {
       try {
-        const pollData = getPollById(params.id);
+        const pollData = getPollById(id);
 
         if (!pollData) {
           notFound();
@@ -46,7 +48,7 @@ export default function PollPage({ params }: PollPageProps) {
     return () => {
       isMounted = false;
     };
-  }, [params.id]);
+  }, [id]);
 
   const handleVote = (optionId: string): void => {
     if (!poll) return;
