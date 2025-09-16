@@ -2,10 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/app/contexts/AuthContext';
 
 export default function LoginPage() {
   const { signIn } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [status, setStatus] = useState<{
@@ -28,8 +31,9 @@ export default function LoginPage() {
       if (!user) {
         setStatus({ loading: false, error: 'Invalid email or password' });
       } else {
-        // Optional: redirect user after login
-        // router.push('/dashboard');
+        // Redirect to the intended page or default to polls
+        const redirectTo = searchParams.get('redirect') || '/polls';
+        router.push(redirectTo);
       }
     } catch (err) {
       console.error('Sign-in error:', err);

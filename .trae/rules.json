@@ -20,6 +20,26 @@
     {
       "description": "Scaffolding expectations",
       "details": "When asked to scaffold a feature (e.g. 'create a form to submit a new poll'), the assistant should create files in the right folder (/app/polls/new/page.tsx), use react-hook-form + shadcn/ui, and call Supabase insert query inside an API route (/app/api/polls/route.ts)."
+    },
+    {
+      "description": "Keep QR logic in src/lib/qr and expose small, typed helpers",
+      "details": "Helpers must be pure where possible and return strings or data URLs. Expose createSignedPollUrl on server only."
+    },
+    {
+      "description": "Client components must be marked 'use client' and only call public endpoints",
+      "details": "UI components call /api/polls/[id]/qr route. Do not call server-only functions directly from client code."
+    },
+    {
+      "description": "Use signed short-lived URLs for private polls",
+      "details": "When poll is private, QR links must include a signed token that expires in <= 24 hours."
+    },
+    {
+      "description": "Cache generated QR payloads",
+      "details": "Persist generated SVG or Data-URL in a simple cache or CDN. Avoid regenerating per request unless token is unique."
+    },
+    {
+      "description": "Log and surface errors clearly in UI",
+      "details": "Any QR generation failure should return readable JSON with status codes. Client shows short message and retry link."
     }
   ]
 }
