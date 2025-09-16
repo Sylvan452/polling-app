@@ -108,14 +108,25 @@ export default function PollsPage() {
           </div>
         )}
 
-        {/* Footer */}
-        <div className="text-center mt-12">
-          <p className="text-gray-500">
-            Want to create your own poll? 
-            <a href="#" className="text-blue-600 hover:text-blue-800 font-medium ml-1">
+        {/* Call to Action */}
+        <div className="text-center mt-16">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8 border border-blue-100">
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">
+              Want to create your own poll?
+            </h3>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              Create engaging polls, gather opinions, and see real-time results with our easy-to-use poll builder.
+            </p>
+            <Link
+              href="/polls/create"
+              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-md hover:shadow-lg"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
               Get started here
-            </a>
-          </p>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
